@@ -25,6 +25,7 @@ class App extends Component {
     this.handleSearchInput = this.handleSearchInput.bind(this);
     this.handleOrderSearch = this.handleOrderSearch.bind(this);
     this.handleDeleteOrder = this.handleDeleteOrder.bind(this);
+    this.handleDeleteItem = this.handleDeleteItem.bind(this);
     this.state = {
       currentOrder: null,
       products: [],
@@ -54,6 +55,7 @@ class App extends Component {
   }
 
   handleOrderSearch() {
+    let modOrders = _.get(this.state, 'orders');
     let currentSearch = _.get(this.state, 'searchInput')
     let url = `http://localhost:3000/orders/${currentSearch}`;
     Request.get(url).then((response) => {
@@ -64,7 +66,7 @@ class App extends Component {
       });
     });
   }
-
+  
   handleSearchInput = (e) => {
     let userInput = e.target.value;
     let modSearch = _.get(this.state, 'searchInput');
@@ -83,13 +85,69 @@ class App extends Component {
     })
   }
 
-  handleDeleteOrder(index) {
+  handleDeleteItem(event, index) {
+    let itemID = parseInt(event.target.getAttribute('data-id'));
+    let ordID = parseInt(event.target.getAttribute('data-order'));
+    let prodPrice = parseInt(event.target.getAttribute('data-price'));
+    let modOrderDet = _.get(this.state, 'orderDetails');
+    let modOrders = _.get(this.state, 'orders');
+    let price = 0;
+    let quantity = 0;
+    console.log(modOrderDet);
+    modOrderDet.splice(index, 1);
+    modOrders.map((order, index) => {
+      if (order.orderID === ordID) {
+        order.quantity--;
+        order.total_price -= prodPrice;
+        price = order.total_price;
+        quantity = order.quantity;
+      }
+    });
+    modOrderDet.map((order, index) => {
+      order.price -= prodPrice;
+      order.quantity--;
+    });
+    let url = `http://localhost:3000/orders/${itemID}`;
+    Request.del(url)
+      .send({
+        itemID,
+      })
+      .end((error, response) => {
+        if (error || !response.ok) {
+        } else {
+        }
+          Request.put(url)
+          .send({
+            price,
+            quantity
+          })
+          .end((error, response) => {
+            if (error || !response.ok) {
+            } else {
+            }
+            this.setState({
+              orderDetails: modOrderDet,
+              orders: modOrders
+            });
+          })
+        })
+      }
+
+  handleDeleteOrder(event) {
+    let ordID = parseInt(event.target.getAttribute('data-order'));
     let orders = _.get(this.state, 'orders');
-    let url = `http://localhost:3000/orders/${index}`;
-    console.log(url);
-    Request.del(url).then((response) => {
+    let url = `http://localhost:3000/orders`;
+    Request.del(url)
+      .send({
+        ordID
+      })
+      .end((error, response) => {
+        if (error || !response.ok) {
+        } else {
+        }
       this.setState({
-        orders
+        orderDetails: [],
+        orders: this.getOrders()
       });
     });
   }
@@ -100,12 +158,17 @@ class App extends Component {
     let items = [];
     let obj = Object.assign({}, this.state)
     let order = obj.cart
+    if (!order.length) {
+      alert('Please select at least one product');
+      return;  
+    } else {
     order.map((item, index) => {
       price += item.product_price;
       quantity++;
       items.push(item.product_id);
     });
-    var url = 'http://localhost:3000/orders/';
+    }
+    let url = 'http://localhost:3000/orders/';
     Request.post(url)
       .send({
         quantity,
@@ -148,6 +211,8 @@ class App extends Component {
             current={this.state.currentOrder}
             ordersList={this.state.orders}
             order={this.state.orderDetails}
+            handleDeleteItem={this.handleDeleteItem}
+            handleDeleteOrder={this.handleDeleteOrder}
           /> } />
         </div>
       </BrowserRouter>

@@ -53,19 +53,22 @@ app.get('/', (req, res) => {
 // Gets a specific order
 app.get('/orders/:orderID', (req, res) => {
     var id = req.params.orderID;
-    var query = `Select 
-    P.product_title,
-    P.product_desc,
-    P.product_price,
-    P.product_img
-    
-    From 
-    orders O
-    left join order_details OD on O.orderID = OD.orderID
-    left join products P on OD.product_id = P.product_id
-    
-    Where
-    O.orderID = ${id}`;
+    var query = `SELECT
+    od.id,
+    od.orderID,
+    p.product_id,
+    p.product_title,
+    p.product_price,
+    p.product_img,
+    o.quantity,
+    o.price
+
+   FROM order_details od
+
+   LEFT JOIN products p on p.product_id = od.product_id
+    LEFT JOIN orders o on o.orderID = od.orderID
+
+   WHERE od.orderID = ${id}`;
     connection.query(query, (error, results, fields) => {
         if (error) throw error;
         res.send(results);
@@ -75,7 +78,7 @@ app.get('/orders/:orderID', (req, res) => {
 app.get('/orders', (req, res) => {
     query = `SELECT
     od.orderID,
-    count(od.product_id) as total_products,
+    count(od.product_id) as quantity,
     sum(p.product_price) as total_price
     
     FROM
@@ -90,31 +93,11 @@ app.get('/orders', (req, res) => {
     });
 });
 
-
-// Add item to order.
-// app.post('/orders/:orderID', (req, res) => {
-//     var id = req.params.orderID;
-//     let item = req.body.items;
-//     var query = `Insert Into 
-//     order_details 
-//     (orderID, product_id)
-//     Values
-//     (${id}, 2)`;
-//     connection.query(query, items, (error, results, fields) => {
-//         if (error) throw error;
-//         console.log(results);
-//         res.send('Item Added to Order.');
-//     });
-// });
-
 app.post('/orders', (req, res) => {
     console.log(req.body);
     var items = req.body.items;
     var quantity = req.body.quantity;
     var price = req.body.price;
-    console.log('Items: ', items)
-    console.log('Quantity: ', quantity)
-    console.log('Price: ', price)
     var query = `INSERT INTO Orders (quantity, price) VALUES (${quantity}, ${price})`
     connection.query(query, (error, results, fields) => {
         if (error) {
@@ -136,25 +119,91 @@ app.post('/orders', (req, res) => {
         }
     });
 });
-// Deletes an entire order
-app.delete('/orders/:orderID', (req, res) => {
-    var id = req.params.orderID;
-    var query = `Delete 
-    From 
-    orders
+
+// Deletes a specific product from order_details
+app.delete('/orders/:itemID', (req, res) => {
+    let id = req.body.itemID;
+    let query = `DELETE
     
-    Where
-    orderID = ${id}`;
+    FROM 
+    order_details
+
+    WHERE
+    id = ${id}`;
     connection.query(query, (error, results, fields) => {
         if (error) throw error;
-        //console.log(typeof id);
-        console.log(req.params.orderID);
-        console.log(results);
-        //console.log(fields);
-        res.send('Order Removed.');
+        res.send(results);
     });
 });
 
+// Updates quantity and price of an order after product has been deleted
+
+app.put('/orders/:orderID', (req, res) => {
+    let id = req.params.orderID;
+    let price = req.body.price;
+    let quantity = req.body.quantity;
+    let query = `UPDATE
+    orders
+
+    SET 
+    quantity = ${quantity}, price = ${price}
+
+    WHERE
+    orderID = ${id}`;
+    connection.query(query, (error, results, fields) => {
+        if (error) throw error;
+        res.send(results);
+    });
+});
+
+// Deletes an entire order from orders table
+app.delete('/orders', (req, res) => {
+    let id = req.body.ordID;
+    let query = `DELETE
+
+    FROM 
+    orders
+    
+    WHERE
+    orderID = ${id}`;
+    connection.query(query, (error, results, fields) => {
+        if (error) {
+            return res.send(error); 
+        } else {
+            let query2 = `DELETE
+            
+            FROM 
+            order_details
+        
+            WHERE
+            orderID = ${id}`;
+            connection.query(query2, (error, results, fields) => {
+                if (error) {
+                    return res.send(error);
+                } else {
+                    res.send(results);
+                }
+            })
+        }
+    });
+});
+
+
+// Deletes entire order from order details
+// app.delete('/orders/:orderID', (req, res) => {
+//     let id = req.body.itemID;
+//     let query = `DELETE
+    
+//     FROM 
+//     order_details
+
+//     WHERE
+//     id = ${id}`;
+//     connection.query(query, (error, results, fields) => {
+//         if (error) throw error;
+//         res.send(results);
+//     });
+// });
 
 
 app.listen(3000); 
