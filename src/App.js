@@ -54,8 +54,59 @@ class App extends Component {
     });
   }
 
+  handleAddProduct (product_id, event) {
+    let cart = Object.assign({}, this.state);
+    let modCart = cart.cart;
+    modCart.push(product_id);
+    this.setState({
+      cart: modCart
+    })
+  }
+
+  handleBuy(e) {
+    e.preventDefault();
+    let quantity = 0, price = 0;
+    let items = [];
+    let obj = Object.assign({}, this.state)
+    let order = obj.cart
+    if (!order.length) {
+      alert('Please select at least one product');
+      return;  
+    } else {
+    order.map((item, index) => {
+      price += item.product_price;
+      quantity++;
+      items.push(item.product_id);
+    });
+    }
+    let url = 'http://localhost:3000/orders/';
+    Request.post(url)
+      .send({
+        quantity,
+        price,
+        items
+      })
+      .end((error, response) => {
+        if (error || !response.ok) {
+        } else {
+        }
+        this.setState({
+          cart: [],
+          orders: this.getOrders()
+        })
+      });
+    }
+
+  handleSearchInput = (e) => {
+    let userInput = e.target.value;
+    let modSearch = _.get(this.state, 'searchInput');
+    modSearch = userInput;
+    this.setState({
+      searchInput: modSearch
+    });
+  }
+
   handleOrderSearch() {
-    let modOrders = _.get(this.state, 'orders');
     let currentSearch = _.get(this.state, 'searchInput')
     let url = `http://localhost:3000/orders/${currentSearch}`;
     Request.get(url).then((response) => {
@@ -67,33 +118,14 @@ class App extends Component {
     });
   }
   
-  handleSearchInput = (e) => {
-    let userInput = e.target.value;
-    let modSearch = _.get(this.state, 'searchInput');
-    modSearch = userInput;
-    this.setState({
-      searchInput: modSearch
-    });
-  }
-
-  handleAddProduct (product_id, event) {
-    let cart = Object.assign({}, this.state);
-    let modCart = cart.cart;
-    modCart.push(product_id);
-    this.setState({
-      cart: modCart
-    })
-  }
-
   handleDeleteItem(event, index) {
-    let itemID = parseInt(event.target.getAttribute('data-id'));
-    let ordID = parseInt(event.target.getAttribute('data-order'));
-    let prodPrice = parseInt(event.target.getAttribute('data-price'));
+    let itemID = parseInt(event.target.getAttribute('data-id'), 10);
+    let ordID = parseInt(event.target.getAttribute('data-order'), 10);
+    let prodPrice = parseInt(event.target.getAttribute('data-price'), 10);
     let modOrderDet = _.get(this.state, 'orderDetails');
     let modOrders = _.get(this.state, 'orders');
     let price = 0;
     let quantity = 0;
-    console.log(modOrderDet);
     modOrderDet.splice(index, 1);
     modOrders.map((order, index) => {
       if (order.orderID === ordID) {
@@ -134,8 +166,7 @@ class App extends Component {
       }
 
   handleDeleteOrder(event) {
-    let ordID = parseInt(event.target.getAttribute('data-order'));
-    let orders = _.get(this.state, 'orders');
+    let ordID = parseInt(event.target.getAttribute('data-order'), 10);
     let url = `http://localhost:3000/orders`;
     Request.del(url)
       .send({
@@ -147,44 +178,13 @@ class App extends Component {
         }
       this.setState({
         orderDetails: [],
-        orders: this.getOrders()
+        orders: this.getOrders(),
+        currentOrder: ''
       });
     });
   }
 
-  handleBuy(e) {
-    e.preventDefault();
-    let quantity = 0, price = 0;
-    let items = [];
-    let obj = Object.assign({}, this.state)
-    let order = obj.cart
-    if (!order.length) {
-      alert('Please select at least one product');
-      return;  
-    } else {
-    order.map((item, index) => {
-      price += item.product_price;
-      quantity++;
-      items.push(item.product_id);
-    });
-    }
-    let url = 'http://localhost:3000/orders/';
-    Request.post(url)
-      .send({
-        quantity,
-        price,
-        items
-      })
-      .end((error, response) => {
-        if (error || !response.ok) {
-        } else {
-        }
-        this.setState({
-          cart: [],
-          orders: this.getOrders()
-        })
-      });
-    }
+ 
 
   render() {
     return (

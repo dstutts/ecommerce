@@ -10,11 +10,10 @@ class Order extends Component {
 
 
     renderOrderInfo() {
-        let curr = parseInt(this.props.current);
-        console.log(curr);
+        let curr = parseInt(this.props.current, 10);
         let orderInfo = _.map(this.props.ordersList, (order, index) => {
             if (order.orderID === curr) {
-                return <div className='order_info' key={index}>
+                return <div key={index}>
                                 <tr>
                                     <td>Total Items:{order.quantity}</td>
                                 </tr>
@@ -32,8 +31,7 @@ class Order extends Component {
 
     renderOrder() {
         let order = _.map(this.props.order, (product, index) => {
-            return <div key={index}>
-                    <ul className = 'order_list'>
+            return <div className = 'order_list' key={index}>
                         <li>
                             <div className = 'order_title'>
                                 {product.product_title}
@@ -48,7 +46,6 @@ class Order extends Component {
                                 <button className='remove_item' data-id={product.id} data-order={product.orderID} data-price={product.product_price} onClick={(e) => {this.props.handleDeleteItem(e, index)}}>Remove</button>
                             </div>
                         </li>
-                    </ul>
                    </div>
           });
           return order;
@@ -57,14 +54,15 @@ class Order extends Component {
     render() {
       return (
         <div>
-            <div>
+            <div className='order_info'>
                 <table className='order_info_table'>
-
                     {this.renderOrderInfo()}
                 </table>
             </div>
-            <div>
-                {this.renderOrder()}
+            <div  className='order_list_container'>
+                <ul>
+                    {this.renderOrder()}
+                </ul>
             </div>
         </div>
       );

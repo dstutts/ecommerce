@@ -10,7 +10,6 @@ class Products extends Component {
     renderProducts() {
         var products = _.map(this.props.list, (product, index) => {
             return <div key={index}>
-                    <ul className = 'product_list'>
                         <li>
                             <div className = 'product_title'>
                                 {product.product_title}
@@ -28,7 +27,6 @@ class Products extends Component {
                             <button onClick={(e) => {this.props.handleAddProduct(product, e)}}>Add to Cart</button>
                             </div>
                         </li>
-                    </ul>
                    </div>
           });
           return products;
@@ -37,7 +35,9 @@ class Products extends Component {
     render() {
       return (
         <div>
+            <ul className = 'product_list'>
            {this.renderProducts()}
+           </ul>
         </div>
       );
     }

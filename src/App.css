@@ -45,6 +45,10 @@ ul {
   list-style-type: none;
 }
 
+.order_list_container ul {
+  display: inline;
+}
+
 .product_list {
   margin: 5% auto;
   width: 1000px;
@@ -91,15 +95,46 @@ li .product_title {
 }
 
 .order_list {
-  position: relative;
   top: 60px;
-  margin: 0 auto;
+  margin: 5% auto;
   width: 500px;
   list-style: none;
 }
 
-.order_info {
+
+/* Use to afix order totals when scrolling*/
+/* .order_info_table {
+  display: inline;
+  position: fixed;
   margin: 5% auto;
+  float: left;
+  width: 20%;
+} */
+/* .order_info {
+  display: inline;
+  float: left;
+  margin-top: 5%;
+  margin-bottom: 1000px;
+  width: 25%;
+} */
+
+.order_info {
+  display: inline;
+  float: left;
+  margin-top: 5%;
+  margin-bottom: 1000px;
+  width: 30%;
+}
+
+.order_info_table {
+  display: inline;
+  margin: 5% auto;
+  float: left;
+  width: 80%;
+}
+
+.order_list_container {
+  display: inline;
 }
 
 .order_list li {
@@ -170,10 +205,7 @@ tr {
   width: 40%;
 }
 
-.order_info_table {
-  margin: 5% auto;
-  width: 30%;
-}
+
 
 /* .orders_wrapper {
     position: relative;
