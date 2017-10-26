@@ -6,6 +6,8 @@ class Orders extends Component {
       super();
       this.renderOrders = this.renderOrders.bind(this);
     }
+
+    // Map over orders' state to display order info
     renderOrders() {
         let orders = _.map(this.props.ordersList, (order, index) => {
             return <div className='orders_wrapper' key={index}>
@@ -13,7 +15,6 @@ class Orders extends Component {
                             <td>Order Number: {order.orderID}</td>
                             <td>Items:{order.quantity}</td>
                             <td>Total:${order.total_price}</td>
-                            <td><button onClick={() => {this.props.handleDeleteOrder(index)}}>Select Order</button></td>
                         </tr>
                     </div>
         });
@@ -21,8 +22,8 @@ class Orders extends Component {
     }
     render() {
       return (
-        <div>
-            <table className='orders_table'>
+        <div  className='orders_table'>
+            <table>
                     {this.renderOrders()}
             </table>
         </div>

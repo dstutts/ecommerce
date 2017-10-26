@@ -8,7 +8,7 @@ class Order extends Component {
       this.renderOrderInfo = this.renderOrderInfo.bind(this);
     }
 
-
+    // Map over state of orders to ensure orderID equals currentOrder value to display totals
     renderOrderInfo() {
         let curr = parseInt(this.props.current, 10);
         let orderInfo = _.map(this.props.ordersList, (order, index) => {
@@ -29,6 +29,8 @@ class Order extends Component {
                     return orderInfo;
                 }
 
+    // Map over state of orderDetails to display each product
+    // Grab data attributes to use in handleDeleteItem in App.js
     renderOrder() {
         let order = _.map(this.props.order, (product, index) => {
             return <div className = 'order_list' key={index}>

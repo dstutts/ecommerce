@@ -202,15 +202,10 @@ tr {
 
 .orders_table {
   margin: 5% auto;
-  width: 40%;
+  width: 35%;
 }
 
-
-
-/* .orders_wrapper {
-    position: relative;
-    top: 60px;
-    margin: 0 auto;
-    width: 40%;;
-} */
+.orders_wrapper {
+  width: 100%
+}
 

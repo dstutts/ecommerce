@@ -36,6 +36,7 @@ class App extends Component {
     };
   } 
 
+  // Call to get products from ComponentDidMount to make sure request resolves and products render 
   getProducts() {
     var url = 'http://localhost:3000';
     Request.get(url).then((response) => {
@@ -45,6 +46,7 @@ class App extends Component {
     });
   }
 
+  // Call to get existing order information from db in ComponentDidMount
   getOrders() {
     let url = 'http://localhost:3000/orders/';
     Request.get(url).then((response) => {
@@ -54,21 +56,23 @@ class App extends Component {
     });
   }
 
+  // Call in Products.js' 'Add to Cart' button to push product into cart's state
   handleAddProduct (product_id, event) {
-    let cart = Object.assign({}, this.state);
-    let modCart = cart.cart;
+    let modCart = _.get(this.state, 'cart');
     modCart.push(product_id);
     this.setState({
       cart: modCart
     })
   }
 
+  // Use cart's state and declared variables to set body structure, items will be an array of product id's
+  // Send as post request to orders (affecting orders and order_details' tables)
+  // State changes: empty cart, update existing orders
   handleBuy(e) {
     e.preventDefault();
     let quantity = 0, price = 0;
     let items = [];
-    let obj = Object.assign({}, this.state)
-    let order = obj.cart
+    let order = _.get(this.state, 'cart');
     if (!order.length) {
       alert('Please select at least one product');
       return;  
@@ -97,6 +101,7 @@ class App extends Component {
       });
     }
 
+  // Set state of searchInput to user input for order number
   handleSearchInput = (e) => {
     let userInput = e.target.value;
     let modSearch = _.get(this.state, 'searchInput');
@@ -106,6 +111,8 @@ class App extends Component {
     });
   }
 
+  // API call to get specific order via searchInput's state as endpoint
+  // Set state of orderDetails as response, state of currentOrder to searchInput, reset searchInput
   handleOrderSearch() {
     let currentSearch = _.get(this.state, 'searchInput')
     let url = `http://localhost:3000/orders/${currentSearch}`;
@@ -118,6 +125,9 @@ class App extends Component {
     });
   }
   
+  // Use data attributes from Order.js' renderOrders to modify order_details by id, orders by orderID
+  // Modify state of orderDetails to reflect item deletion
+  // Map over orders to structure request body
   handleDeleteItem(event, index) {
     let itemID = parseInt(event.target.getAttribute('data-id'), 10);
     let ordID = parseInt(event.target.getAttribute('data-order'), 10);
@@ -165,6 +175,7 @@ class App extends Component {
         })
       }
 
+  // Use data attributes from Order.js to get orderID to be deleted in orders table
   handleDeleteOrder(event) {
     let ordID = parseInt(event.target.getAttribute('data-order'), 10);
     let url = `http://localhost:3000/orders`;
@@ -183,8 +194,6 @@ class App extends Component {
       });
     });
   }
-
- 
 
   render() {
     return (

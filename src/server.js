@@ -13,12 +13,14 @@ var connection = mysql.createConnection({
 
 var app = express(); 
 
+// Enable cross-origin resource sharing
 app.use(cors());
 
+// Ensure cross-origin resource sharing headers allowed
 app.use(function(req, res, next)
 { res.header("Access-Control-Allow-Origin", "*");
 res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE"); // allow these headers
+res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE"); 
 next(); 
 });
 
@@ -32,7 +34,7 @@ connection.connect((error) => {
     }
 });
 
-// Gets all products
+// Gets all products to be displayed in Products.js
 app.get('/', (req, res) => {
     var query = `Select
         P.product_id, 
@@ -50,7 +52,7 @@ app.get('/', (req, res) => {
 });
 
 
-// Gets a specific order
+// Gets a specific order for Order.js display
 app.get('/orders/:orderID', (req, res) => {
     var id = req.params.orderID;
     var query = `SELECT
@@ -75,6 +77,7 @@ app.get('/orders/:orderID', (req, res) => {
     });
 });
 
+// Get all orders for Orders.js
 app.get('/orders', (req, res) => {
     query = `SELECT
     od.orderID,
@@ -93,6 +96,8 @@ app.get('/orders', (req, res) => {
     });
 });
 
+// Post new order to orders table, then order_details table
+// Map over items array from request body to insert into order_details
 app.post('/orders', (req, res) => {
     console.log(req.body);
     var items = req.body.items;
@@ -136,8 +141,7 @@ app.delete('/orders/:itemID', (req, res) => {
     });
 });
 
-// Updates quantity and price of an order after product has been deleted
-
+// Updates quantity and price of an order after product has been deleted (same front-end request as above)
 app.put('/orders/:orderID', (req, res) => {
     let id = req.params.orderID;
     let price = req.body.price;
@@ -156,7 +160,7 @@ app.put('/orders/:orderID', (req, res) => {
     });
 });
 
-// Deletes an entire order from orders table
+// Deletes an entire order from orders table and each row from order_details table where orderID matches
 app.delete('/orders', (req, res) => {
     let id = req.body.ordID;
     let query = `DELETE
@@ -187,23 +191,5 @@ app.delete('/orders', (req, res) => {
         }
     });
 });
-
-
-// Deletes entire order from order details
-// app.delete('/orders/:orderID', (req, res) => {
-//     let id = req.body.itemID;
-//     let query = `DELETE
-    
-//     FROM 
-//     order_details
-
-//     WHERE
-//     id = ${id}`;
-//     connection.query(query, (error, results, fields) => {
-//         if (error) throw error;
-//         res.send(results);
-//     });
-// });
-
 
 app.listen(3000); 

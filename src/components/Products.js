@@ -7,6 +7,7 @@ class Products extends Component {
       this.renderProducts = this.renderProducts.bind(this);
     }
 
+    // Map over products' state  to list each item
     renderProducts() {
         var products = _.map(this.props.list, (product, index) => {
             return <div key={index}>
